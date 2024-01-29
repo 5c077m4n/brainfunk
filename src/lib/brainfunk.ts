@@ -1,3 +1,14 @@
+const TOKEN = {
+	INC: "+",
+	DEC: "-",
+	NEXT: ">",
+	PREV: "<",
+	LOOP_START: "[",
+	LOOP_END: "]",
+	INPUT: ",",
+	OUTPUT: ".",
+} as const satisfies Record<string, string>;
+
 export class Brainfunk {
 	static readonly TAPE_SIZE = 30_000;
 	static readonly WORD_SIZE = 256;
@@ -18,9 +29,9 @@ export class Brainfunk {
 		const stack: number[] = [];
 
 		for (let i = 0; i < this.program.length; i++) {
-			if (this.program[i] === "[") {
+			if (this.program[i] === TOKEN.LOOP_START) {
 				stack.push(i);
-			} else if (this.program[i] === "]") {
+			} else if (this.program[i] === TOKEN.LOOP_END) {
 				const latestMatch = stack.pop();
 
 				if (typeof latestMatch === "undefined") {
@@ -41,7 +52,7 @@ export class Brainfunk {
 
 		while (this.ip < this.program.length) {
 			switch (this.program[this.ip]) {
-				case "+": {
+				case TOKEN.INC: {
 					this.tape[this.tp]++;
 					if (this.tape[this.tp] >= Brainfunk.WORD_SIZE) {
 						this.tape[this.tp] = 0;
@@ -50,7 +61,7 @@ export class Brainfunk {
 
 					break;
 				}
-				case "-": {
+				case TOKEN.DEC: {
 					this.tape[this.tp]--;
 					if (this.tape[this.tp] < 0) {
 						this.tape[this.tp] = Brainfunk.WORD_SIZE - 1;
@@ -59,7 +70,7 @@ export class Brainfunk {
 
 					break;
 				}
-				case ">": {
+				case TOKEN.NEXT: {
 					this.tp++;
 					if (this.tp >= this.tape.length) {
 						throw Error("Pointer overflow");
@@ -68,7 +79,7 @@ export class Brainfunk {
 
 					break;
 				}
-				case "<": {
+				case TOKEN.PREV: {
 					this.tp--;
 					if (this.tp < 0) {
 						throw Error("Pointer underflow");
@@ -77,7 +88,7 @@ export class Brainfunk {
 
 					break;
 				}
-				case ",": {
+				case TOKEN.INPUT: {
 					if (this.input == "") {
 						this.tape[this.tp] = 0;
 					} else {
@@ -88,13 +99,13 @@ export class Brainfunk {
 
 					break;
 				}
-				case ".": {
+				case TOKEN.OUTPUT: {
 					output += String.fromCharCode(this.tape[this.tp]);
 					this.ip++;
 
 					break;
 				}
-				case "[": {
+				case TOKEN.LOOP_START: {
 					if (this.tape[this.tp] === 0) {
 						this.ip = this.matches[this.ip];
 					} else {
@@ -103,7 +114,7 @@ export class Brainfunk {
 
 					break;
 				}
-				case "]": {
+				case TOKEN.LOOP_END: {
 					if (this.tape[this.tp] !== 0) {
 						this.ip = this.matches[this.ip];
 					} else {
