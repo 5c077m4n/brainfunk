@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 
-deno fmt --check || exit 1
-deno test || exit 1
+cargo +nightly fmt || exit 1
+cargo build || exit 1
+cargo test || exit 1

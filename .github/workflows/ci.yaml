@@ -1,20 +1,16 @@
 ---
-name: Main
+name: CI
 
 on:
-  push: {}
-  pull_request: {}
+  - push
+  - pull_request
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - name: Setup
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-      - name: Lint
-        run: deno fmt --check
-      - name: Test
-        run: deno test
+      - uses: hecrj/setup-rust-action@v2
+      - name: Run tests
+        run: cargo test --verbose

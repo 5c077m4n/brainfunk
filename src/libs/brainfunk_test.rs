@@ -1,11 +1,22 @@
-import { assertThrows } from "../dev_deps.ts";
-import { assertEquals } from "../dev_deps.ts";
+use anyhow::Result;
 
-import { Brainfunk } from "./lib/brainfunk.ts";
+use super::brainfunk::Brainfunk;
 
-Deno.test(function helloWorldWithCommentsTest() {
-	const output = new Brainfunk(
-		`+++++ +++              Set Cell #0 to 8
+#[test]
+fn hello_world() -> Result<()> {
+	let mut bf = Brainfunk::new(
+        "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
+        ""
+	);
+	assert_eq!(bf.run()?, "Hello World!\n");
+
+	Ok(())
+}
+
+#[test]
+fn hello_world_with_comments() -> Result<()> {
+	let mut bf = Brainfunk::new(
+		r#"+++++ +++              Set Cell #0 to 8
 		[
 			>++++               Add 4 to Cell #1; this will always set Cell #1 to 4
 			[                   as the cell will be cleared by the loop
@@ -37,49 +48,65 @@ Deno.test(function helloWorldWithCommentsTest() {
 		<.                      Cell #3 was set to 'o' from the end of 'Hello'
 		+++.----- -.----- ---.  Cell #3 for 'rl' and 'd'
 		>>+.                    Add 1 to Cell #5 gives us an exclamation point
-		>++.                    And finally a newline from Cell #6`,
-	).run();
-	assertEquals(output, "Hello World!\n");
-});
+		>++.                    And finally a newline from Cell #6"#,
+		"",
+	);
+	assert_eq!(bf.run()?, "Hello World!\n");
 
-Deno.test(function helloWorldTest() {
-	const output = new Brainfunk(
-		"++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
-	).run();
-	assertEquals(output, "Hello World!\n");
-});
+	Ok(())
+}
 
-Deno.test(function helloWorldCorrectSpacingTest() {
-	const output = new Brainfunk(
-		"++++++++[>++++++++<-]>++++++++.>++++++++[>++++++++++++<-]>+++++.+++++++..+++.>++++++++[>+++++<-]>++++.------------.<<<<+++++++++++++++.>>.+++.------.--------.>>+.",
-	).run();
-	assertEquals(output, "Hello, World!");
-});
-
-Deno.test(function catTest() {
-	const inputs = [
+#[test]
+fn cat() -> Result<()> {
+	let inputs = &[
 		"Hello, World!",
 		"This should be the same as before",
 		",[.,]",
 	];
-	for (const input of inputs) {
-		const output = new Brainfunk(",[.,]", input).run();
-		assertEquals(output, input);
+
+	for &input in inputs {
+		let mut bf = Brainfunk::new(",[.,]", input);
+		assert_eq!(
+			bf.run()?,
+			input,
+			"The input {} was not returned as given",
+			input
+		);
 	}
-});
 
-Deno.test(function missingLoopStartTest() {
-	const interp = new Brainfunk(",.],", "Should error");
-	assertThrows(
-		interp.run,
-		"Right bracket does not have a matching left bracket",
-	);
-});
+	Ok(())
+}
 
-Deno.test(function missingLoopEndTest() {
-	const interp = new Brainfunk(",[.,", "Should error");
-	assertThrows(
-		interp.run,
-		"Left bracket does not have a matching right bracket",
-	);
-});
+#[test]
+fn missing_loop_start() -> Result<()> {
+	let mut bf = Brainfunk::new(",.,]", "This should error");
+	let result = bf.run();
+
+	assert!(result.is_err());
+	match result {
+		Ok(_) => unreachable!(),
+		Err(msg) => assert_eq!(
+			msg.to_string(),
+			"Right bracket does not have a matching left bracket @ char #3"
+		),
+	}
+
+	Ok(())
+}
+
+#[test]
+fn missing_loop_end() -> Result<()> {
+	let mut bf = Brainfunk::new(",[.,", "This should error");
+	let result = bf.run();
+
+	assert!(result.is_err());
+	match result {
+		Ok(_) => unreachable!(),
+		Err(msg) => assert_eq!(
+			msg.to_string(),
+			"Left bracket does not have a matching right bracket"
+		),
+	}
+
+	Ok(())
+}
