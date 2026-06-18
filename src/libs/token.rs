@@ -35,3 +35,9 @@ impl From<u8> for Token {
 		}
 	}
 }
+
+impl From<char> for Token {
+	fn from(value: char) -> Self {
+		Token::from(value as u8)
+	}
+}

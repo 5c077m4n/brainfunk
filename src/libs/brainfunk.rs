@@ -6,7 +6,7 @@ use super::token::Token;
 
 const TAPE_SIZE: usize = 30_000;
 
-pub struct Brainfunk {
+pub struct BrainFunk {
 	matches: HashMap<usize, usize>,
 	instruction_pointer: usize,
 	tape: Vec<u8>,
@@ -15,14 +15,17 @@ pub struct Brainfunk {
 	input: String,
 	input_pointer: usize,
 }
-impl Brainfunk {
+impl BrainFunk {
 	pub fn new(program: &str, input: &str) -> Self {
 		let program = program
 			.chars()
-			.map(|c| Token::from(c as u8))
-			.filter_map(|token| match token {
-				Token::Comment => None,
-				other => Some(other),
+			.filter_map(|c| {
+				let token = Token::from(c);
+				if token != Token::Comment {
+					Some(token)
+				} else {
+					None
+				}
 			})
 			.collect::<Vec<Token>>();
 		let input = input.to_string();
@@ -106,11 +109,11 @@ impl Brainfunk {
 					}
 				}
 				Token::Input => {
-					self.tape[self.tape_pointer] = match self.input.chars().nth(self.input_pointer)
-					{
-						Some(c) => c as u8,
-						None => 0,
-					};
+					self.tape[self.tape_pointer] = self
+						.input
+						.chars()
+						.nth(self.input_pointer)
+						.map_or(0, |c| c as u8);
 					self.input_pointer += 1;
 					self.instruction_pointer += 1;
 				}

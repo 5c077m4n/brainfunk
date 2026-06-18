@@ -1,10 +1,10 @@
 use anyhow::Result;
 
-use super::brainfunk::Brainfunk;
+use super::brainfunk::BrainFunk;
 
 #[test]
 fn hello_world() -> Result<()> {
-	let mut bf = Brainfunk::new(
+	let mut bf = BrainFunk::new(
         "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
         ""
 	);
@@ -15,7 +15,7 @@ fn hello_world() -> Result<()> {
 
 #[test]
 fn hello_world_with_comments() -> Result<()> {
-	let mut bf = Brainfunk::new(
+	let mut bf = BrainFunk::new(
 		r#"+++++ +++              Set Cell #0 to 8
 		[
 			>++++               Add 4 to Cell #1; this will always set Cell #1 to 4
@@ -65,7 +65,7 @@ fn cat() -> Result<()> {
 	];
 
 	for &input in inputs {
-		let mut bf = Brainfunk::new(",[.,]", input);
+		let mut bf = BrainFunk::new(",[.,]", input);
 		assert_eq!(
 			bf.run()?,
 			input,
@@ -80,7 +80,7 @@ fn cat() -> Result<()> {
 #[test]
 fn cat_program() -> Result<()> {
 	let code = ">+++++>+++>+++>+++++>+++>+++>+++++>++++++>+>++>+++>++++>++++>+++>+++>+++++>+>+>++++>+++++++>+>+++++>+>+>+++++>++++++>+++>+++>++>+>+>++++>++++++>++++>++++>+++>+++++>+++>+++>++++>++>+>+>+>+>++>++>++>+>+>++>+>+>++++++>++++++>+>+>++++++>++++++>+>+>+>+++++>++++++>+>+++++>+++>+++>++++>++>+>+>++>+>+>++>++>+>+>++>++>+>+>+>+>++>+>+>+>++++>++>++>+>+++++>++++++>+++>+++>+++>+++>+++>+++>++>+>+>+>+>++>+>+>++++>+++>+++>+++>+++++>+>+++++>++++++>+>+>+>++>+++>+++>+++++++>+++>++++>+>++>+>+++++++>++++++>+>+++++>++++++>+++>+++>++>++>++>++>++>++>+>++>++>++>++>++>++>++>++>++>+>++++>++>++>++>++>++>++>++>+++++>++++++>++++>+++>+++++>++++++>++++>+++>+++>++++>+>+>+>+>+++++>+++>+++++>++++++>+++>+++>+++>++>+>+>+>++++>++++[[>>>+<<<-]<]>>>>[<<[-]<[-]+++++++[>+++++++++>++++++<<-]>-.>+>[<.<<+>>>-]>]<<<[>>+>>>>+<<<<<<-]>++[>>>+>>>>++>>++>>+>>+[<<]>-]>>>-->>-->>+>>+++>>>>+[<<]<[[-[>>+<<-]>>]>.[>>]<<[[<+>-]<<]<<]";
-	let mut bf = Brainfunk::new(code, "");
+	let mut bf = BrainFunk::new(code, "");
 	assert_eq!(
 		bf.run()?,
 		code,
@@ -93,7 +93,7 @@ fn cat_program() -> Result<()> {
 
 #[test]
 fn missing_loop_start() -> Result<()> {
-	let mut bf = Brainfunk::new(",.,]", "This should error");
+	let mut bf = BrainFunk::new(",.,]", "This should error");
 	let result = bf.run();
 
 	assert!(result.is_err());
@@ -110,7 +110,7 @@ fn missing_loop_start() -> Result<()> {
 
 #[test]
 fn missing_loop_end() -> Result<()> {
-	let mut bf = Brainfunk::new(",[.,", "This should error");
+	let mut bf = BrainFunk::new(",[.,", "This should error");
 	let result = bf.run();
 
 	assert!(result.is_err());
